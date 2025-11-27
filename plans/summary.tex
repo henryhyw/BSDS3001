@@ -1,0 +1,172 @@
+\documentclass[11pt,a4paper]{article}
+
+\usepackage[margin=1in]{geometry}
+\usepackage{setspace}
+\usepackage{hyperref}
+\usepackage{enumitem}
+\usepackage{booktabs}
+
+\hypersetup{
+    colorlinks=true,
+    urlcolor=blue,
+    linkcolor=black,
+    citecolor=black
+}
+
+\setstretch{1.15}
+
+\begin{document}
+
+\title{The Social Impacts of the U.S. Data Center Boom:\\
+A Social Data Science Project Summary}
+\author{Project Proposal Summary}
+\date{\today}
+
+\maketitle
+
+\section{Overview}
+
+This project examines the rise of data centers in the United States and their social impacts, focusing on energy systems, environmental outcomes, and community-level effects such as housing costs. Data centers form the physical backbone of the digital economy and recent artificial intelligence (AI) growth. Their rapid expansion has raised concerns about soaring electricity demand, greenhouse gas emissions, water use, and pressures on local infrastructure.
+
+We will construct a multi-year, state-level dataset for all U.S.\ states and the District of Columbia, covering at least six recent years. The dataset will integrate indicators of data center growth, energy use, emissions, water stress, air quality, and socio-economic conditions. Using this dataset, we will apply social data science methods---including descriptive analysis, panel regression, and clustering---and develop Tableau dashboards to tell a coherent story about who gains and who bears the costs of the data center boom.
+
+\section{Research Motivation and SDG Alignment}
+
+Data centers are highly concentrated in particular regions and increasingly dominate new electricity demand. At the same time, local communities and regulators face trade-offs: data centers can bring jobs and tax revenues, but they also require large amounts of electricity and, often, water for cooling. These demands may contribute to higher energy prices, increased emissions, and environmental stress, especially in already vulnerable areas.
+
+The project is aligned with the following Sustainable Development Goals (SDGs):
+
+\begin{itemize}[leftmargin=*]
+    \item \textbf{SDG 7: Affordable and Clean Energy} -- Investigating how large digital loads affect electricity consumption and prices, and how these impacts may vary across states.
+    \item \textbf{SDG 13: Climate Action} -- Assessing the relationship between data center intensity and power-sector CO\textsubscript{2} emissions and air quality.
+    \item \textbf{Related SDGs} -- SDG 8 (Decent Work and Economic Growth) through employment and wages; SDG 9 (Industry, Innovation and Infrastructure) through digital infrastructure; and SDG 11 (Sustainable Cities and Communities) via housing and environmental stress.
+\end{itemize}
+
+\section{Research Questions and Hypotheses}
+
+We will address the following main research questions:
+
+\begin{itemize}[leftmargin=*]
+    \item \textbf{RQ1 (Uneven growth):} How uneven is data center growth across U.S.\ states over the last six years?
+    \item \textbf{RQ2 (Energy and prices):} Are states with faster data center growth experiencing larger increases in per-capita electricity consumption and higher electricity prices?
+    \item \textbf{RQ3 (Emissions and air quality):} Is data center intensity associated with higher per-capita CO\textsubscript{2} emissions from the electric power sector and worse air quality?
+    \item \textbf{RQ4 (Water and stress):} Do data center--intensive states with high baseline water stress face particularly strong energy and emissions impacts?
+    \item \textbf{RQ5 (Housing and communities):} Is data center intensity associated with rising housing costs, after controlling for income and unemployment?
+    \item \textbf{RQ6 (Typologies):} Can we identify clusters of states with distinct ``data center--impact'' profiles (e.g., hyperscale hubs vs.\ low-digital states)?
+\end{itemize}
+
+Guided by theory and prior evidence, we hypothesize that:
+
+\begin{itemize}[leftmargin=*]
+    \item Higher data center intensity is positively associated with per-capita electricity sales and power-sector emissions.
+    \item In states with limited clean energy and high baseline water stress, the link between data center intensity and emissions is stronger.
+    \item Data center hubs may experience more rapid increases in rents and home values, especially in already tight housing markets.
+    \item The employment share of data center-related industries remains relatively small, suggesting that energy and environmental costs may be more diffuse than direct job benefits.
+\end{itemize}
+
+\section{Dataset Design}
+
+\subsection{Unit of Analysis and Time Frame}
+
+The unit of analysis is the \textbf{state--year}. We will construct a balanced panel dataset with:
+
+\begin{itemize}[leftmargin=*]
+    \item All 50 U.S.\ states plus the District of Columbia.
+    \item A time span of \textbf{six recent years} (e.g.\ 2019--2024).
+\end{itemize}
+
+This yields at least 306 instances ($51 \times 6$), satisfying the requirement of more than 300 observations.
+
+\subsection{Data Sources}
+
+The dataset will be constructed by merging open, downloadable data from multiple official sources:
+
+\begin{itemize}[leftmargin=*]
+    \item \textbf{Data center and digital sector:} State-level employment, wages, and establishments in NAICS 518210 (Data Processing, Hosting, and Related Services) from the BLS Quarterly Census of Employment and Wages (QCEW); geocoded data center locations and floor area from an open data center atlas.
+    \item \textbf{Energy and prices:} Electricity sales and average retail prices by state and sector (residential, commercial, industrial) from U.S.\ Energy Information Administration (EIA) state electricity profiles.
+    \item \textbf{Emissions:} Power-sector CO\textsubscript{2} emissions and related metrics from EIA's State Energy Data System (SEDS).
+    \item \textbf{Water and water stress:} State-level public water withdrawals from U.S.\ Geological Survey (USGS) water-use datasets; baseline water stress indices from the World Resources Institute's Aqueduct project.
+    \item \textbf{Air quality:} State-level aggregations of PM\textsubscript{2.5} and related air quality metrics derived from U.S.\ Environmental Protection Agency (EPA) Air Quality System (AQS) data.
+    \item \textbf{Socioeconomic and housing:} Median household income, population, median gross rent, median home value, and rent burden from the American Community Survey (ACS); state unemployment rates from BLS Local Area Unemployment Statistics (LAUS).
+\end{itemize}
+
+\subsection{Attributes}
+
+The combined dataset will include well over fifteen attributes, such as:
+
+\begin{itemize}[leftmargin=*]
+    \item Data center employment, establishments, and wages; employment share and facilities per capita.
+    \item Electricity sales per capita and average prices across sectors.
+    \item Power-sector CO\textsubscript{2} emissions per capita.
+    \item Baseline water stress and public water withdrawals per capita.
+    \item Air quality indicators (e.g., mean PM\textsubscript{2.5}).
+    \item Population, median income, unemployment, median rent, median home value, rent burden.
+\end{itemize}
+
+This structure provides a rich basis for exploring linkages between data centers and social outcomes.
+
+\section{Methods and Analytical Strategy}
+
+\subsection{Descriptive Analysis}
+
+We will begin with descriptive statistics and exploratory data analysis to understand the distribution and trends of key variables, including:
+
+\begin{itemize}[leftmargin=*]
+    \item Growth in data center employment and footprint by state.
+    \item Trends in per-capita electricity sales, prices, emissions, and housing costs.
+    \item Correlations among data center intensity, energy use, emissions, water stress, and socio-economic indicators.
+\end{itemize}
+
+\subsection{Regression Analysis}
+
+Next, we will estimate panel regression models to assess associations between data center intensity and various outcomes, controlling for other factors:
+
+\begin{itemize}[leftmargin=*]
+    \item Models relating data center jobs per capita to per-capita electricity sales and average retail electricity prices.
+    \item Models relating data center intensity to per-capita power-sector CO\textsubscript{2} emissions and air quality metrics.
+    \item Models relating data center intensity to housing outcomes (median rent, median home value), with controls for income and unemployment.
+    \item Interaction terms between data center intensity and baseline water stress to test whether impacts are stronger in water-stressed states.
+\end{itemize}
+
+Fixed effects for states and years will help control for time-invariant differences across states and common national shocks.
+
+\subsection{Clustering and Typologies}
+
+We will apply clustering methods such as $k$-means or hierarchical clustering to create typologies of states based on:
+
+\begin{itemize}[leftmargin=*]
+    \item Data center intensity (employment and facilities).
+    \item Per-capita electricity use and prices.
+    \item Emissions, water stress, and housing costs.
+\end{itemize}
+
+This will help identify groups such as ``data center hubs under stress'', ``energy-intensive but not data-heavy'', and more balanced states.
+
+\section{Visualization and Storytelling with Tableau}
+
+Using Tableau Desktop, we will build dashboards to communicate our findings:
+
+\begin{itemize}[leftmargin=*]
+    \item Maps of data center intensity and data center facility footprints by state.
+    \item Time-series comparisons of electricity use and prices in high-intensity versus low-intensity states.
+    \item Scatterplots of data center intensity versus electricity use, prices, emissions, and housing outcomes.
+    \item Bivariate maps and interaction plots showing where high data center intensity overlaps with high baseline water stress.
+    \item Cluster maps that present typologies of states and their associated social impacts.
+\end{itemize}
+
+The visualizations will be designed to tell a clear story about how digital infrastructure growth is linked to energy, environmental, and community outcomes.
+
+\section{Expected Contributions}
+
+The project will contribute:
+
+\begin{itemize}[leftmargin=*]
+    \item An integrated, open-data-based panel dataset on data centers and social impacts at the state level.
+    \item Empirical evidence on how data center growth is associated with electricity consumption, prices, emissions, and housing.
+    \item A typology of state experiences that highlights inequality and environmental justice concerns.
+    \item Interactive visualizations for non-technical audiences and policymakers.
+\end{itemize}
+
+Overall, the project aims to provide a rigorous, data-driven assessment of the social implications of the U.S.\ data center boom and to demonstrate the power of social data science in addressing contemporary infrastructure questions.
+
+\end{document}

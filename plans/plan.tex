@@ -1,0 +1,471 @@
+\documentclass[11pt,a4paper]{article}
+
+\usepackage[margin=1in]{geometry}
+\usepackage{setspace}
+\usepackage{hyperref}
+\usepackage{enumitem}
+\usepackage{booktabs}
+\usepackage{amsmath}
+
+\hypersetup{
+    colorlinks=true,
+    urlcolor=blue,
+    linkcolor=black,
+    citecolor=black
+}
+
+\setstretch{1.15}
+
+\begin{document}
+
+\title{Implementation Plan:\\
+The Social Impacts of the U.S. Data Center Boom}
+\author{Detailed Project Implementation Plan}
+\date{\today}
+
+\maketitle
+
+\section{Project Structure and Phases}
+
+The project will be implemented in four main phases:
+
+\begin{enumerate}[leftmargin=*]
+    \item \textbf{Phase 1: Conceptual design and data scoping}
+    \item \textbf{Phase 2: Data acquisition and construction of the state--year panel}
+    \item \textbf{Phase 3: Analysis and modeling}
+    \item \textbf{Phase 4: Visualization, interpretation, and reporting}
+\end{enumerate}
+
+Each phase is described in detail below, with explicit tasks and outputs.
+
+\section{Phase 1: Conceptual Design and Scoping}
+
+\subsection{Refine Research Questions and Theory}
+
+\begin{itemize}[leftmargin=*]
+    \item Finalize the set of research questions:
+    \begin{itemize}
+        \item RQ1: Uneven data center growth across states.
+        \item RQ2: Data centers and electricity use/prices.
+        \item RQ3: Data centers, emissions, and air quality.
+        \item RQ4: Data centers and water stress.
+        \item RQ5: Data centers and housing outcomes.
+        \item RQ6: Typologies of states via clustering.
+    \end{itemize}
+    \item Clarify the theoretical lenses:
+    \begin{itemize}
+        \item Critical infrastructure and socio-technical systems.
+        \item Environmental justice (distribution of burdens/benefits).
+        \item Political economy of digital infrastructure and AI.
+    \end{itemize}
+    \item Map out hypothesized causal chains, e.g.:
+    \[
+    \text{Digital \& AI growth} \rightarrow \text{Data center expansion} \rightarrow
+    \text{Electricity demand} \rightarrow \text{Prices \& emissions} \rightarrow
+    \text{Community impacts}.
+    \]
+\end{itemize}
+
+\subsection{Define Unit of Analysis and Time Window}
+
+\begin{itemize}[leftmargin=*]
+    \item Unit: U.S.\ state (50 states + District of Columbia).
+    \item Time frame: six most recent years with consistent data (e.g.\ 2017--2022).
+    \item Dataset size: 51 units $\times$ 6 years = 306 panel observations.
+\end{itemize}
+
+\section{Phase 2: Data Acquisition and Construction}
+
+This is the core technical phase, focused on building the integrated dataset.
+
+\subsection{Step 2.1: Create Panel Skeleton}
+
+\begin{itemize}[leftmargin=*]
+    \item Construct a base table with variables:
+    \begin{itemize}
+        \item \texttt{state}, \texttt{state\_fips}, \texttt{year}.
+    \end{itemize}
+    \item Enumerate all combinations of state and year for 2017--2022.
+    \item This table is the merge ``backbone'' for all subsequent joins.
+\end{itemize}
+
+\subsection{Step 2.2: Data Center and Digital Sector Data}
+
+\subsubsection*{BLS QCEW -- NAICS 518210}
+
+\begin{itemize}[leftmargin=*]
+    \item Download state-level QCEW data for NAICS 518210 for the period 2017--2022.
+    \item Key variables:
+    \begin{itemize}
+        \item \texttt{dc\_emp}: annual average employment.
+        \item \texttt{dc\_estab}: number of establishments.
+        \item \texttt{dc\_total\_wages}: total annual wages.
+        \item \texttt{dc\_avg\_wage}: derived as total wages divided by employment.
+    \end{itemize}
+    \item Similarly download QCEW totals for all industries to construct:
+    \begin{itemize}
+        \item \texttt{total\_emp}: total private employment.
+        \item \texttt{dc\_emp\_share} = \texttt{dc\_emp / total\_emp}.
+    \end{itemize}
+\end{itemize}
+
+\subsubsection*{Data Center Footprint -- Open Atlas}
+
+\begin{itemize}[leftmargin=*]
+    \item Download the open data center atlas or similar geospatial dataset with facility points and building footprints.
+    \item Aggregate by state:
+    \begin{itemize}
+        \item \texttt{dc\_facilities\_count}: number of data center facilities.
+        \item \texttt{dc\_total\_sqft}: sum of data center floor area.
+    \end{itemize}
+    \item Merge state land area (from Census Gazetteer) to compute:
+    \begin{itemize}
+        \item \texttt{dc\_sqft\_per\_capita}: footprint per resident.
+        \item \texttt{dc\_land\_share}: footprint as a fraction of land area.
+    \end{itemize}
+    \item Treat these footprint indicators as static across the 2017--2022 panel.
+\end{itemize}
+
+\subsection{Step 2.3: Electricity Sales and Prices (EIA)}
+
+\begin{itemize}[leftmargin=*]
+    \item Download state-level electricity sales and average price data from EIA for 2017--2022.
+    \item Extract variables:
+    \begin{itemize}
+        \item \texttt{elec\_sales\_total\_mwh}: total sales (all sectors).
+        \item \texttt{elec\_sales\_comm\_mwh}: commercial-sector sales.
+        \item \texttt{elec\_sales\_ind\_mwh}: industrial-sector sales.
+        \item \texttt{price\_all\_cents\_kwh}: average retail price, all sectors.
+        \item \texttt{price\_comm\_cents\_kwh}: commercial price.
+        \item \texttt{price\_ind\_cents\_kwh}: industrial price.
+    \end{itemize}
+    \item Later, compute per-capita metrics after merging population data:
+    \begin{itemize}
+        \item \texttt{elec\_sales\_pc\_mwh} = \texttt{elec\_sales\_total\_mwh / pop}.
+    \end{itemize}
+\end{itemize}
+
+\subsection{Step 2.4: Emissions (EIA SEDS)}
+
+\begin{itemize}[leftmargin=*]
+    \item Download state-level energy-related CO\textsubscript{2} emissions from the State Energy Data System.
+    \item Focus on variables:
+    \begin{itemize}
+        \item \texttt{co2\_power\_mt}: power-sector CO\textsubscript{2} (million metric tons).
+        \item Optionally \texttt{co2\_total\_mt}: total CO\textsubscript{2} from all sectors.
+    \end{itemize}
+    \item Compute per-capita measures:
+    \begin{itemize}
+        \item \texttt{co2\_power\_pc\_tons} = \texttt{co2\_power\_mt} $\times 10^6 /$ \texttt{pop}.
+    \end{itemize}
+\end{itemize}
+
+\subsection{Step 2.5: Water Use and Water Stress}
+
+\subsubsection*{USGS Water Use}
+
+\begin{itemize}[leftmargin=*]
+    \item Download state-level water-use data (e.g.\ 2015 and 2020).
+    \item Extract public supply withdrawals:
+    \begin{itemize}
+        \item \texttt{public\_withdrawals\_mgd}: million gallons per day.
+    \end{itemize}
+    \item Compute per-capita withdrawals:
+    \begin{itemize}
+        \item \texttt{public\_withdrawals\_pc\_gpd} = \texttt{public\_withdrawals\_mgd} $\times 10^6 /$ \texttt{pop}.
+    \end{itemize}
+    \item Use 2015 values for earlier years and 2020 for later years, or treat the average as a static indicator.
+\end{itemize}
+
+\subsubsection*{Baseline Water Stress (Aqueduct)}
+
+\begin{itemize}[leftmargin=*]
+    \item Download baseline annual water stress indices for U.S.\ administrative units.
+    \item Aggregate to the state level if necessary.
+    \item Add:
+    \begin{itemize}
+        \item \texttt{baseline\_water\_stress}: continuous index, or categorized (low/medium/high).
+        \item Optionally \texttt{baseline\_water\_depletion}.
+    \end{itemize}
+    \item Treat these as static over the 2017--2022 period.
+\end{itemize}
+
+\subsection{Step 2.6: Air Quality (EPA AQS)}
+
+\begin{itemize}[leftmargin=*]
+    \item Download pre-generated daily PM\textsubscript{2.5} (and optionally ozone) files for 2017--2022.
+    \item For each monitor:
+    \begin{itemize}
+        \item Compute annual average PM\textsubscript{2.5}.
+        \item Count days above the standard threshold (e.g.\ 12 $\mu$g/m\textsuperscript{3}).
+    \end{itemize}
+    \item Aggregate to state-year level:
+    \begin{itemize}
+        \item \texttt{pm25\_mean\_ugm3}: mean of monitor averages (or population-weighted).
+        \item \texttt{pm25\_days\_above\_12}: average days above 12 $\mu$g/m\textsuperscript{3}.
+    \end{itemize}
+\end{itemize}
+
+\subsection{Step 2.7: Socioeconomic and Housing Indicators}
+
+\subsubsection*{ACS State-Level Indicators}
+
+\begin{itemize}[leftmargin=*]
+    \item For each year 2017--2022, collect:
+    \begin{itemize}
+        \item \texttt{pop}: total population.
+        \item \texttt{median\_income}: median household income.
+        \item \texttt{median\_gross\_rent}: median gross rent.
+        \item \texttt{median\_home\_value}: median owner-occupied home value.
+        \item \texttt{rent\_burden\_share}: $\%$ renters spending $\geq 30\%$ of income on rent.
+    \end{itemize}
+\end{itemize}
+
+\subsubsection*{Unemployment and Broader Digital Sector}
+
+\begin{itemize}[leftmargin=*]
+    \item From BLS LAUS:
+    \begin{itemize}
+        \item \texttt{unemployment\_rate}: state annual unemployment rate.
+    \end{itemize}
+    \item From QCEW (Information sector, NAICS 51):
+    \begin{itemize}
+        \item \texttt{info\_emp\_share}: information-sector employment as a share of total employment.
+    \end{itemize}
+\end{itemize}
+
+\subsection{Step 2.8: Merging and Cleaning}
+
+\begin{itemize}[leftmargin=*]
+    \item Sequentially merge all datasets onto the \texttt{state--year} skeleton using consistent state codes and years.
+    \item Ensure each merge preserves the panel structure (no duplicate state--year combinations).
+    \item Handle missing values due to:
+    \begin{itemize}
+        \item Data suppression (e.g.\ small QCEW cells) by interpolation or exclusion when rare.
+        \item Infrequent measurement (e.g.\ water-use years) by carrying forward/back or averaging.
+    \end{itemize}
+    \item Standardize key continuous variables (e.g.\ z-scores) for clustering:
+    \begin{itemize}
+        \item \texttt{dc\_emp\_per\_10k\_pop}, \texttt{elec\_sales\_pc\_mwh}, \texttt{price\_all\_cents\_kwh}, \texttt{co2\_power\_pc\_tons}, \texttt{median\_gross\_rent}, etc.
+    \end{itemize}
+\end{itemize}
+
+\section{Phase 3: Analysis and Modeling}
+
+\subsection{Step 3.1: Descriptive Statistics and EDA}
+
+\begin{itemize}[leftmargin=*]
+    \item Compute summary statistics (mean, median, standard deviation) for all key variables.
+    \item Produce correlation matrices to explore relationships among:
+    \begin{itemize}
+        \item Data center intensity measures.
+        \item Electricity use and prices.
+        \item Emissions and air quality.
+        \item Water stress and withdrawals.
+        \item Income, unemployment, housing variables.
+    \end{itemize}
+    \item Identify outliers and interesting cases (e.g.\ states with very high data center intensity and high water stress).
+\end{itemize}
+
+\subsection{Step 3.2: Panel Regression Models}
+
+\subsubsection*{Model Family 1: Data Centers, Electricity Use, and Prices}
+
+\paragraph{Specification}
+
+For state $s$ and year $t$:
+
+\begin{align*}
+\text{elec\_sales\_pc\_mwh}_{st}
+&= \alpha_s + \gamma_t + \beta_1 \text{dc\_emp\_per\_10k\_pop}_{st} 
++ \beta_2 \log(\text{median\_income}_{st})
++ \beta_3 \text{info\_emp\_share}_{st} \\
+&\quad + \beta_4 \text{unemployment\_rate}_{st}
++ \varepsilon_{st},
+\end{align*}
+
+where $\alpha_s$ are state fixed effects and $\gamma_t$ are year fixed effects.
+
+A similar model will be estimated for average retail price, $\text{price\_all\_cents\_kwh}_{st}$, as the dependent variable.
+
+\paragraph{Interpretation}
+
+\begin{itemize}[leftmargin=*]
+    \item $\beta_1$: association between data center employment intensity and electricity use or prices per capita, controlling for income, digital sector size, and unemployment.
+    \item Hypothesis: $\beta_1 > 0$ for both electricity use and prices.
+\end{itemize}
+
+\subsubsection*{Model Family 2: Emissions and Air Quality}
+
+\paragraph{Specification}
+
+\begin{align*}
+\text{co2\_power\_pc\_tons}_{st}
+&= \alpha_s + \gamma_t 
++ \delta_1 \text{dc\_emp\_per\_10k\_pop}_{st}
++ \delta_2 \text{elec\_sales\_pc\_mwh}_{st} \\
+&\quad + \delta_3 \text{baseline\_water\_stress}_s
++ \delta_4 \big( \text{dc\_emp\_per\_10k\_pop}_{st} \times \text{baseline\_water\_stress}_s \big)
++ u_{st}.
+\end{align*}
+
+\paragraph{Interpretation}
+
+\begin{itemize}[leftmargin=*]
+    \item $\delta_1$: direct association between data center intensity and power-sector CO\textsubscript{2} per capita.
+    \item $\delta_4$: whether this association is stronger in high water-stress states (interaction).
+    \item Hypotheses: $\delta_1 > 0$ and $\delta_4 > 0$.
+\end{itemize}
+
+Similarly, we can estimate models with air quality measures (e.g.\ PM\textsubscript{2.5}) as outcomes.
+
+\subsubsection*{Model Family 3: Housing and Community Outcomes}
+
+\paragraph{Specification}
+
+\begin{align*}
+\text{median\_gross\_rent}_{st}
+&= \alpha_s + \gamma_t 
++ \theta_1 \text{dc\_emp\_per\_10k\_pop}_{st}
++ \theta_2 \log(\text{median\_income}_{st}) \\
+&\quad + \theta_3 \text{unemployment\_rate}_{st}
++ v_{st}.
+\end{align*}
+
+A parallel model will use \texttt{median\_home\_value} as the dependent variable.
+
+\paragraph{Interpretation}
+
+\begin{itemize}[leftmargin=*]
+    \item $\theta_1$: association between data center intensity and housing costs, conditional on income and unemployment.
+    \item Hypothesis: $\theta_1 > 0$ in data center hub states.
+\end{itemize}
+
+\subsubsection*{Robustness and Diagnostics}
+
+\begin{itemize}[leftmargin=*]
+    \item Check multicollinearity among predictors (e.g.\ variance inflation factors).
+    \item Test alternative measures of data center intensity (e.g.\ employment share vs.\ facilities count).
+    \item Consider simple lagged models (data center intensity at $t-1$ predicting outcomes at $t$).
+\end{itemize}
+
+\subsection{Step 3.3: Clustering and Typology}
+
+\begin{itemize}[leftmargin=*]
+    \item Construct a state-level feature vector (using mean or final-year values) with:
+    \begin{itemize}
+        \item \texttt{dc\_emp\_per\_10k\_pop}, \texttt{dc\_facilities\_count}
+        \item \texttt{elec\_sales\_pc\_mwh}, \texttt{price\_all\_cents\_kwh}
+        \item \texttt{co2\_power\_pc\_tons}, \texttt{baseline\_water\_stress}
+        \item \texttt{median\_gross\_rent}, \texttt{median\_income}
+    \end{itemize}
+    \item Standardize these variables to have mean zero and unit variance.
+    \item Apply $k$-means clustering (e.g.\ $k=3$ or $k=4$) and compare inertia and silhouette scores to choose $k$.
+    \item Interpret clusters with descriptive tables and maps, e.g.:
+    \begin{itemize}
+        \item Cluster A: ``data center hubs under stress''
+        \item Cluster B: ``energy-intensive, low-digital''
+        \item Cluster C: ``low data center, moderate everything''
+        \item Cluster D: ``rich digital states with high housing costs''
+    \end{itemize}
+\end{itemize}
+
+\section{Phase 4: Visualization and Reporting}
+
+\subsection{Step 4.1: Tableau Dashboards}
+
+Design and implement a set of Tableau dashboards corresponding to the main themes:
+
+\subsubsection*{Dashboard 1: Geography of Data Centers}
+
+\begin{itemize}[leftmargin=*]
+    \item Choropleth map: data center employment per 10,000 residents by state and year.
+    \item Bar chart: top 10 states by data center intensity for a selected year.
+    \item Interactive filters: year slider, ability to highlight specific states.
+\end{itemize}
+
+\subsubsection*{Dashboard 2: Energy and Emissions}
+
+\begin{itemize}[leftmargin=*]
+    \item Line chart: per-capita electricity sales for selected high- and low-intensity states.
+    \item Scatterplot: data center intensity vs.\ electricity use/prices, with trend lines.
+    \item Scatterplot: data center intensity vs.\ CO\textsubscript{2} per capita.
+\end{itemize}
+
+\subsubsection*{Dashboard 3: Water Stress and Air Quality}
+
+\begin{itemize}[leftmargin=*]
+    \item Map with dual encoding: baseline water stress and data center intensity.
+    \item Scatter with color by water stress category, showing interaction patterns with emissions or PM\textsubscript{2.5}.
+\end{itemize}
+
+\subsubsection*{Dashboard 4: Housing and Clusters}
+
+\begin{itemize}[leftmargin=*]
+    \item Scatterplot: data center intensity vs.\ rent or home values (and their growth).
+    \item Cluster map: states colored by cluster membership.
+    \item Tooltip: cluster mean characteristics (energy, emissions, housing).
+\end{itemize}
+
+\subsection{Step 4.2: Interpretation and Narrative}
+
+\begin{itemize}[leftmargin=*]
+    \item Synthesize regression and clustering results into a narrative:
+    \begin{itemize}
+        \item Where are data centers expanding the fastest?
+        \item How is this linked to energy use, prices, and emissions?
+        \item Which states face ``double burdens'' (e.g.\ high data center intensity and high water stress)?
+        \item How do housing markets respond in data center hubs?
+    \end{itemize}
+    \item Connect findings to SDG 7 and SDG 13, and discuss implications for:
+    \begin{itemize}
+        \item Energy and climate policy.
+        \item Water-resource planning.
+        \item Land use and housing policy.
+        \item Environmental justice and equity.
+    \end{itemize}
+\end{itemize}
+
+\subsection{Step 4.3: Limitations and Future Work}
+
+\begin{itemize}[leftmargin=*]
+    \item Discuss limitations:
+    \begin{itemize}
+        \item NAICS 518210 is a proxy for data centers and includes other data-processing services.
+        \item State-level data may mask within-state spatial inequalities.
+        \item Observational design limits causal claims.
+        \item Water-use data are infrequent; water stress indices are static.
+    \end{itemize}
+    \item Suggest extensions:
+    \begin{itemize}
+        \item County- or metro-level analysis.
+        \item Incorporation of detailed tax incentive and land-use data.
+        \item Micro-level analysis of employment types and wage distribution.
+    \end{itemize}
+\end{itemize}
+
+\section{Indicative Timeline}
+
+Assuming a semester-scale project, an example timeline:
+
+\begin{itemize}[leftmargin=*]
+    \item Weeks 1--2: Finalize conceptual design and data source list.
+    \item Weeks 3--5: Acquire and clean all datasets; construct the state--year panel.
+    \item Weeks 6--8: Conduct descriptive analysis and initial regression models.
+    \item Weeks 9--10: Refine models, run robustness checks, and perform clustering.
+    \item Weeks 11--12: Build Tableau dashboards and draft narrative.
+    \item Weeks 13--14: Finalize report, presentation, and visualizations.
+\end{itemize}
+
+\section{Summary}
+
+This implementation plan provides a step-by-step roadmap for building a rich, integrated dataset on data centers and social impacts, applying robust social data science methods, and delivering clear visual and written outputs. Following this plan will ensure that the project:
+
+\begin{itemize}[leftmargin=*]
+    \item Meets the requirement for more than 300 instances and 15 attributes.
+    \item Uses openly available datasets from credible official sources.
+    \item Produces both quantitative results and compelling visual storytelling.
+    \item Addresses an important, timely topic at the intersection of digital infrastructure, energy, environment, and communities.
+\end{itemize}
+
+\end{document}

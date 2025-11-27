@@ -1,0 +1,269 @@
+\section{Data}\label{sec:data}
+
+\subsection{Unit of observation}
+
+Our main dataset is a state--year panel for the 50 U.S.\ states and the District of Columbia observed annually from 2015 to 2024. The unit of observation is a state $s$ in year $t$. The dataset combines (i) labour market data for NAICS 518210 (computing infrastructure providers, data processing, web hosting, and related services), (ii) electricity sales, prices, generation and emissions at the state level, and (iii) modelled indicators of data-centre electricity use, water use and environmental burdens.
+
+We group variables into three conceptual dimensions: (i) \emph{data centre growth} (size and expansion of the industry), (ii) \emph{environmental impact} (energy, water, emissions), and (iii) \emph{social impact} (prices, revenues and employment outcomes). Some variables are relevant to more than one dimension; we assign each to the dimension that is most directly targeted in our analysis.
+
+\subsection{Variable definitions, sources, and categories}
+
+Table~\ref{tab:variables} summarises all variables in the analytic dataset, including the original source and any modelling steps.
+
+\begin{table}[htbp]
+  \centering
+  \scriptsize
+  \caption{Variable definitions, primary category, and data sources}
+  \label{tab:variables}
+  \begin{tabular}{p{3.0cm} p{6.5cm} p{2.4cm} p{4.0cm}}
+    \hline
+    \textbf{Name} & \textbf{Definition (units)} & \textbf{Category} & \textbf{Source / construction} \\
+    \hline
+    \multicolumn{4}{l}{\emph{Identifiers}}\\[0.2em]
+    \texttt{year} &
+      Calendar year (2015--2024). &
+      Data centre growth (identifier) &
+      Implicit in all source files (BLS QCEW and EIA historical state data). \\
+
+    \texttt{state\_fips} &
+      Two-digit numeric FIPS code of the state. &
+      Data centre growth (identifier) &
+      Taken from BLS QCEW state files and matched to EIA state codes. \\
+
+    \texttt{state} &
+      U.S.\ state name (e.g.\ ``California''). &
+      Data centre growth (identifier) &
+      From BLS QCEW state-level extracts; harmonised with EIA state names. \\
+    \\[-0.6em]
+
+    \multicolumn{4}{l}{\emph{Data centre growth attributes}}\\[0.2em]
+    \texttt{annual\_avg\_estabs} &
+      Annual average number of establishments in NAICS 518210 in state $s$ and year $t$. &
+      Data centre growth &
+      Directly from BLS Quarterly Census of Employment and Wages (QCEW), NAICS 518210, state-level annual average establishment counts.\footnote{QCEW provides establishment and employment counts by NAICS industry and geography.} \\
+
+    \texttt{annual\_avg\_emplvl} &
+      Annual average employment in NAICS 518210 in state $s$ and year $t$ (number of jobs). &
+      Data centre growth &
+      Directly from BLS QCEW, NAICS 518210, state-level annual average employment. \\
+
+    \texttt{dc\_count\_modeled} &
+      Modelled number of data centres (facilities) in state $s$ and year $t$. &
+      Data centre growth &
+      Constructed by scaling \texttt{annual\_avg\_estabs} so that the national sum in 2024 matches an external estimate of the total number of U.S.\ data centres (about 5{,}400--5{,}500 facilities). A constant factor $k$ is chosen such that
+      $\sum_s k \cdot \texttt{annual\_avg\_estabs}_{s,2024} \approx 5{,}427$, then
+      $\texttt{dc\_count\_modeled}_{s,t} = k \cdot \texttt{annual\_avg\_estabs}_{s,t}$ for all years. \\
+
+    \texttt{jobs\_per\_dc\_modeled} &
+      Direct jobs per data centre in state $s$ and year $t$ (employees per facility). &
+      Data centre growth / social impact &
+      Defined as
+      $\texttt{jobs\_per\_dc\_modeled}_{s,t} = \texttt{annual\_avg\_emplvl}_{s,t}/\texttt{dc\_count\_modeled}_{s,t}$, for states and years with positive modelled facility counts. \\
+    \\[-0.6em]
+
+    \multicolumn{4}{l}{\emph{Electricity sales and prices (social impact)}}\\[0.2em]
+    \texttt{res\_sales\_mwh} &
+      Retail electricity sales to residential customers, in megawatt-hours. &
+      Social impact &
+      From EIA ``Annual sales to ultimate customers by state and sector'' (Form EIA-861), residential sector column; aggregated to annual state totals. \\
+
+    \texttt{com\_sales\_mwh} &
+      Retail electricity sales to commercial customers, in megawatt-hours. &
+      Social impact &
+      From the same EIA-861 state--sector sales table, commercial sector. \\
+
+    \texttt{ind\_sales\_mwh} &
+      Retail electricity sales to industrial customers, in megawatt-hours. &
+      Social impact &
+      From EIA-861 state--sector sales table, industrial sector. \\
+
+    \texttt{trans\_sales\_mwh} &
+      Retail electricity sales to the transportation sector, in megawatt-hours. &
+      Social impact &
+      From EIA-861 state--sector sales table, transportation sector (where reported). \\
+
+    \texttt{total\_sales\_mwh} &
+      Total retail electricity sales to ultimate customers in state $s$, in megawatt-hours. &
+      Social impact &
+      Sum over sectors (residential, commercial, industrial, transportation) from the EIA-861 state--sector sales table. \\
+
+    \texttt{res\_revenues\_thousand\_dollars} &
+      Annual revenue from residential electricity sales, in thousand nominal U.S.\ dollars. &
+      Social impact &
+      From EIA-861 ``Annual sales to ultimate customers by state and sector'', residential revenue column. \\
+
+    \texttt{com\_revenues\_thousand\_dollars} &
+      Annual revenue from commercial electricity sales, thousand dollars. &
+      Social impact &
+      From EIA-861, commercial revenue column. \\
+
+    \texttt{ind\_revenues\_thousand\_dollars} &
+      Annual revenue from industrial electricity sales, thousand dollars. &
+      Social impact &
+      From EIA-861, industrial revenue column. \\
+
+    \texttt{trans\_revenues\_thousand\_dollars} &
+      Annual revenue from transportation electricity sales, thousand dollars. &
+      Social impact &
+      From EIA-861, transportation revenue column (where reported). \\
+
+    \texttt{total\_revenues\_thousand\_dollars} &
+      Total annual revenue from electricity sales to ultimate customers, thousand dollars. &
+      Social impact &
+      Sum of sectoral revenues from EIA-861. \\
+
+    \texttt{res\_price\_cents\_per\_kwh} &
+      Average retail residential electricity price (cents per kWh). &
+      Social impact &
+      Constructed as
+      $\texttt{res\_revenues\_thousand\_dollars} / (\texttt{res\_sales\_mwh}\times 1{,}000)\times 10^5$,
+      i.e.\ revenue divided by kWh sold and converted to cents. \\
+
+    \texttt{total\_price\_cents\_per\_kwh} &
+      Average retail price to all customers (cents per kWh). &
+      Social impact &
+      Constructed analogously using \texttt{total\_revenues\_thousand\_dollars} and \texttt{total\_sales\_mwh}. \\
+
+    \texttt{res\_price\_premium\_cents\_vs\_us\_avg} &
+      Residential price premium relative to national average in year $t$ (cents per kWh). &
+      Social impact &
+      For each year $t$, compute the sales-weighted U.S.\ average residential price
+      $\bar{p}^{US}_{\text{res},t}$.
+      The premium is $\texttt{res\_price\_cents\_per\_kwh}_{s,t} - \bar{p}^{US}_{\text{res},t}$. \\
+
+    \texttt{total\_price\_premium\_cents\_vs\_us\_avg} &
+      Total-price premium relative to national average in year $t$ (cents per kWh). &
+      Social impact &
+      Defined analogously using \texttt{total\_price\_cents\_per\_kwh} and the national average price across all sectors. \\
+    \\[-0.6em]
+
+    \multicolumn{4}{l}{\emph{Generation mix and emissions (environmental impact)}}\\[0.2em]
+    \texttt{gen\_total\_mwh} &
+      Total net electricity generation in state $s$, in megawatt-hours. &
+      Environmental impact &
+      From EIA ``Net Generation by State by Type of Producer by Energy Source'' (EIA-906/920/923), summed across all producers and energy sources. \\
+
+    \texttt{gen\_coal\_mwh} &
+      Net generation from coal-fired units, MWh. &
+      Environmental impact &
+      From the same EIA net generation file, summing coal-related energy sources. \\
+
+    \texttt{gen\_gas\_mwh} &
+      Net generation from natural gas, MWh. &
+      Environmental impact &
+      From EIA net generation file, natural gas sources. \\
+
+    \texttt{gen\_nuclear\_mwh} &
+      Net generation from nuclear power, MWh. &
+      Environmental impact &
+      From EIA net generation file, nuclear energy source. \\
+
+    \texttt{gen\_renewables\_mwh} &
+      Net generation from renewable sources (e.g.\ hydro, wind, solar, biomass), MWh. &
+      Environmental impact &
+      Sum over renewable energy sources in the EIA net generation file. \\
+
+    \texttt{share\_coal\_gen} &
+      Share of total generation from coal in state $s$ and year $t$. &
+      Environmental impact &
+      $\texttt{share\_coal\_gen} = \texttt{gen\_coal\_mwh}/\texttt{gen\_total\_mwh}$, with missing values when the denominator is zero. \\
+
+    \texttt{share\_gas\_gen}, \texttt{share\_nuclear\_gen}, \texttt{share\_renewables\_gen} &
+      Shares of total generation from natural gas, nuclear and renewables respectively. &
+      Environmental impact &
+      Defined analogously using the corresponding generation variables. \\
+
+    \texttt{co2\_power\_metric\_tons} &
+      Annual CO$_2$ emissions from the electric power industry in state $s$, metric tons. &
+      Environmental impact &
+      Directly from EIA ``U.S.\ Electric Power Industry Estimated Emissions by State'' table (total electric power industry, all energy sources, CO$_2$ column). \\
+
+    \texttt{so2\_power\_metric\_tons} &
+      Annual SO$_2$ emissions from the electric power industry, metric tons. &
+      Environmental impact &
+      From the same EIA emissions table, SO$_2$ column. \\
+
+    \texttt{nox\_power\_metric\_tons} &
+      Annual NO$_x$ emissions from the electric power industry, metric tons. &
+      Environmental impact &
+      From the same EIA emissions table, NO$_x$ column. \\
+
+    \texttt{co2\_intensity\_kg\_per\_mwh} &
+      CO$_2$ emission intensity of the state power sector, kg CO$_2$/MWh. &
+      Environmental impact &
+      Constructed as
+      $\texttt{co2\_power\_metric\_tons} \times 1{,}000 / \texttt{gen\_total\_mwh}$,
+      converting metric tons to kg and dividing by total net generation. \\
+
+    \texttt{so2\_intensity\_kg\_per\_mwh}, \texttt{nox\_intensity\_kg\_per\_mwh} &
+      SO$_2$ and NO$_x$ emission intensities (kg/MWh). &
+      Environmental impact &
+      Defined analogously using the SO$_2$ and NO$_x$ emission totals. \\
+    \\[-0.6em]
+
+    \multicolumn{4}{l}{\emph{Data-centre electricity use and grid stress (environmental impact)}}\\[0.2em]
+    \texttt{dc\_electricity\_mwh\_modeled} &
+      Modelled total electricity consumption by data centres in state $s$ and year $t$, MWh. &
+      Environmental impact /
+      growth scale &
+      First, we use national estimates of total U.S.\ data-centre electricity use by year (2014--2023) from the Lawrence Berkeley National Laboratory (LBNL) data-centre energy usage reports and DOE updates, which report an increase from about 58 TWh in 2014 to about 176 TWh in 2023. We smoothly extrapolate to 2024. For each year $t$, we allocate the national total across states in proportion to \texttt{annual\_avg\_emplvl}:
+      \[
+        \texttt{dc\_electricity\_mwh\_modeled}_{s,t}
+        = \frac{\texttt{annual\_avg\_emplvl}_{s,t}}{\sum_{s'} \texttt{annual\_avg\_emplvl}_{s',t}}
+          \times \text{DCMWh}^{US}_t.
+      \] \\
+
+    \texttt{dc\_share\_of\_state\_load\_modeled} &
+      Modelled share of total state retail load consumed by data centres. &
+      Environmental impact &
+      Defined as
+      $\texttt{dc\_electricity\_mwh\_modeled}_{s,t}/\texttt{total\_sales\_mwh}_{s,t}$,
+      a proxy for how much of the state's electricity demand is attributable to data centres. \\
+    \\[-0.6em]
+
+    \multicolumn{4}{l}{\emph{Water use and water stress (environmental impact)}}\\[0.2em]
+    \texttt{dc\_water\_total\_m3\_modeled} &
+      Modelled total operational water footprint of data centres in state $s$, cubic metres. &
+      Environmental impact &
+      Based on Siddik, Shehabi and Marston (2021), who estimate the total U.S.\ operational water footprint of data centres (direct plus indirect via electricity and water utilities) at about $5.13\times 10^8$~m$^3$ in 2018. Using the modelled \texttt{dc\_electricity\_mwh\_modeled} for 2018 and this national total, we back out a volumetric factor of approximately 5.4~m$^3$/MWh and apply it to all state--year observations:
+      \[
+        \texttt{dc\_water\_total\_m3\_modeled}_{s,t}
+        = 5.4004 \times \texttt{dc\_electricity\_mwh\_modeled}_{s,t}.
+      \] \\
+
+    \texttt{dc\_water\_total\_gallons\_modeled} &
+      Same as above, in U.S.\ gallons. &
+      Environmental impact &
+      $\texttt{dc\_water\_total\_gallons\_modeled}
+       = \texttt{dc\_water\_total\_m3\_modeled}\times 264.17205$. \\
+
+    \texttt{dc\_water\_scarcity\_m3\_usaeq\_modeled} &
+      Modelled water scarcity footprint of data centres in state $s$, m$^3$ US-equivalent. &
+      Environmental impact &
+      Siddik et al.\ also report a national water scarcity footprint of about $1.29\times 10^9$~m$^3$ US-equivalent for 2018, implying a scarcity factor of about 13.6~m$^3$ US-eq per MWh given the same electricity baseline. We therefore set
+      \[
+        \texttt{dc\_water\_scarcity\_m3\_usaeq\_modeled}_{s,t}
+        = 13.5801 \times \texttt{dc\_electricity\_mwh\_modeled}_{s,t},
+      \]
+      so that the 2018 national sum matches the published scarcity footprint and state shares follow data-centre electricity consumption. \\
+    \\[-0.6em]
+
+    \multicolumn{4}{l}{\emph{Data-centre-attributable emissions (environmental impact)}}\\[0.2em]
+    \texttt{dc\_co2\_tons\_modeled} &
+      Modelled CO$_2$ emissions attributable to data-centre electricity use in state $s$, metric tons. &
+      Environmental impact &
+      Defined as
+      \[
+        \texttt{dc\_co2\_tons\_modeled}_{s,t}
+        = \texttt{dc\_electricity\_mwh\_modeled}_{s,t}
+          \times \frac{\texttt{co2\_power\_metric\_tons}_{s,t}}{\texttt{gen\_total\_mwh}_{s,t}},
+      \]
+      i.e.\ data-centre MWh times the state-level emission factor of the power sector. Computed where generation data are available. \\
+
+    \texttt{dc\_so2\_tons\_modeled}, \texttt{dc\_nox\_tons\_modeled} &
+      Modelled SO$_2$ and NO$_x$ emissions attributable to data-centre electricity use, metric tons. &
+      Environmental impact &
+      Defined analogously using \texttt{so2\_power\_metric\_tons} and \texttt{nox\_power\_metric\_tons}. \\
+    \hline
+  \end{tabular}
+\end{table}

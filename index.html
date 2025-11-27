@@ -1,0 +1,22 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>Data Center Boom & Its Urban Impact (Modular ESM)</title>
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css"/>
+  <link rel="stylesheet" href="css/styles.css"/>
+</head>
+<body>
+  <div id="bg-stack"></div>
+  <div id="deck-root"></div>
+  <div class="dotnav" id="dotnav"></div>
+  <script type="module">
+    import { bootstrap } from "./js/core/engine.js";
+    import { depsReady } from "./js/deps.js";
+    import deck from "./js/slides/deck.js";
+    await depsReady;
+    bootstrap(deck);
+  </script>
+</body>
+</html>

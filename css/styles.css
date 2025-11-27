@@ -1,0 +1,308 @@
+:root {
+  --bg:#0f1115; --ink:#e6e9ef; --muted:#9aa4b2;
+  --brand:#7bdff2; --brand-2:#f7b267; --accent:#f79d65; --danger:#ef5d60; --ok:#19d97b;
+  --panel:rgba(17,18,23,.6); --border:rgba(255,255,255,.10);
+  --gridline:rgba(255,255,255,.14);
+  --labelH:48px; --captionH:90px;
+
+  /* overlay + grid controls (per-slide override via inline style allowed) */
+  --overlay-alpha:.35;
+  --grid-alpha:.0;
+
+  /* graph typography knobs */
+  --fs-graphLabel: clamp(0.7rem, 0.9vw, 1.1rem);
+  --fs-legend:     clamp(1.4rem, 1.6vw, 1.8rem);
+  --fs-caption:    clamp(0.7rem, 0.9vw, 1.1rem);
+  --fs-axisTitle:  clamp(1.4rem, 1.6vw, 1.8rem);
+  --fs-axisTick:   clamp(0.9rem, 1.1vw, 1.3rem);
+  --fs-tooltip:    clamp(.95rem, 1.05vw, 1.05rem);
+  --fs-geoLabel:   clamp(1.2rem, 1.4vw, 1.6rem);
+}
+
+/* map-like charts */
+#scene-chord   .figure-box svg text,
+#scene-map     .figure-box svg text,
+#scene-bubbles .figure-box svg text,
+#scene-plumes  .figure-box svg text{
+  font-size: var(--fs-geoLabel) !important;
+}
+
+/* modules that already give labels a class: */
+#scene-flow2d  .figure-box svg .lbl,
+#scene-hexgrid .figure-box svg .mlbl{
+  font-size: var(--fs-geoLabel) !important;
+}
+
+*{box-sizing:border-box}
+html{scroll-behavior:smooth;scroll-snap-type:y mandatory;height:100%}
+body{
+  margin:0;background:var(--bg);color:var(--ink);
+  font-family:ui-sans-serif,system-ui,-apple-system,Segoe UI,Inter,Roboto,"Helvetica Neue",Arial;
+  line-height:1.4;
+}
+a{color:var(--brand);text-decoration:none}
+a:hover{text-decoration:underline}
+
+/* Scenes */
+.scene{
+  height:100vh;scroll-snap-align:start;position:relative;border-top:0px solid rgba(255,255,255,.06);overflow:hidden
+}
+
+/* Graph chrome (pill label + legend) */
+.graph-label,.legend{
+  position:absolute;top:1.2rem;background:var(--panel);border:1px solid var(--border);
+  padding:.45rem .6rem;border-radius:10px;backdrop-filter:blur(6px);z-index:3;
+  font-size:var(--fs-graphLabel);
+}
+.graph-label{left:1.2rem}
+.legend{right:1.2rem}
+
+/* Start hidden, with a slight lift for a subtle ease-in */
+.graph-label,
+.caption{
+  opacity: 0;
+  transform: translateY(-6px);
+  transition:
+    opacity var(--fx-dur, 700ms) cubic-bezier(.2,.7,.2,1),
+    transform var(--fx-dur, 700ms) cubic-bezier(.2,.7,.2,1);
+}
+
+/* When the slide text has revealed (text.js toggles .fx-on) → show them */
+.fx-on .graph-label,
+.fx-on .caption{
+  opacity: 1;
+  transform: none;
+}
+
+/* Also support graph slides that use .panel-text.show (your overlay text panel) */
+.scene:has(.panel-text.show) .graph-label,
+.scene:has(.panel-text.show) .caption{
+  opacity: 1;
+  transform: none;
+}
+
+/* Don’t show graph labels/captions on phones (match your dotnav behavior) */
+@media (max-width: 640px) {
+  .graph-label,
+  .caption{
+    display: none !important;
+  }
+}
+
+
+/* Captions */
+.caption{
+  position:absolute;left:2rem;bottom:1.7rem;opacity:.8;z-index:3;max-width:64ch;
+  font-size:var(--fs-caption);
+}
+
+/* Text panels over figures */
+.panel-text{
+  position:absolute;left:50%;transform:translate(-50%,-50%);width:min(1120px,90vw);text-align:center;
+  transition:opacity .6s ease;opacity:0;z-index:2
+}
+.panel-text.show{opacity:1}
+.panel-text .kicker{ text-transform:uppercase;letter-spacing:.2em;color:var(--muted);font-size:.85rem; }
+
+/* Figure container (SVG charts mount inside) */
+.figure-box{position:absolute;left:50%;transform:translateX(-50%);width:90%;z-index:1}
+
+/* Tables */
+.table-cards{
+  position:absolute;left:50%;transform:translateX(-50%);width:min(1100px,92vw);
+  background:var(--panel);border:1px solid var(--border);border-radius:16px;
+  overflow:auto; box-sizing:border-box; padding:6px 0;
+  box-shadow:0 10px 30px rgba(0,0,0,.25);backdrop-filter:blur(8px)
+}
+table{width:100%;border-collapse:collapse}
+thead th{
+  text-align:left;font-weight:600;font-size:.9rem;color:var(--muted);
+  padding:.9rem 1rem;border-bottom:1px solid var(--border);
+  background:rgba(255,255,255,.03)
+}
+tbody td{padding:.85rem 1rem;border-bottom:1px solid rgba(255,255,255,.06)}
+
+.video-frame{
+  width:100%;height:100%;
+  overflow:hidden;
+  border:none;
+  box-shadow:none;
+  background:transparent;
+}
+.video-frame video{
+  display:block;
+  background:transparent;
+}
+
+/* Tooltip */
+.tooltip{
+  position:absolute;pointer-events:none;background:rgba(17,18,23,.96);color:var(--ink);
+  border:1px solid rgba(255,255,255,.12);border-radius:10px;padding:.45rem .6rem;z-index:30;opacity:0;
+  transform:translate(-50%,-140%); font-size:var(--fs-tooltip);
+}
+
+/* SVG defaults */
+svg{display:block;background:transparent}
+
+/* Axis + tick text scaling */
+.axis-title{ fill:var(--muted); font-size:var(--fs-axisTitle); }
+.figure-box svg .axis text,
+.figure-box svg .tick text{ fill:var(--muted); font-size:var(--fs-axisTick); }
+
+/* If legends are drawn inside the SVG */
+.figure-box svg .legend text,
+.figure-box svg .svg-legend text{ font-size:var(--fs-legend); }
+
+/* Dot nav */
+@media (max-width: 640px) {
+  .dotnav { display: none !important; }
+}
+
+.dotnav{
+  position:fixed;right:16px;top:50%;transform:translateY(-50%);
+  display:flex;flex-direction:column;gap:6px;z-index:35;
+  max-height:90vh;overflow-y:auto;padding:4px 2px;
+  backdrop-filter:blur(4px);
+}
+.dotnav button{
+  width:10px;height:10px;border-radius:10px;border:none;background:#757575;opacity:.4;cursor:pointer;
+}
+.dotnav button:hover{opacity:.7}
+.dotnav button.active{background:#fff;opacity:1}
+.dotnav.hidden{display:none}
+
+/* Background stack */
+#bg-stack{position:fixed;inset:0;z-index:0;pointer-events:none;overflow:hidden}
+.bg-layer{position:absolute;inset:0;opacity:0;transition:opacity .6s ease}
+.bg-layer.active{opacity:1}
+.bg-layer video,.bg-layer img{
+  position:absolute;inset:0;width:100%;height:100%;object-fit:cover;
+  filter:contrast(.95) brightness(.65) saturate(1.08)
+}
+.bg-overlay{
+  position:absolute; inset:0; z-index:1;
+  /* gray tint */
+  background-color: rgba(0,0,0,var(--overlay-alpha));
+  /* gridlines + vignette; gridlines driven by --grid-alpha */
+  background-image:
+    radial-gradient(1200px 400px at 50% 120%, rgba(0,0,0, .18), transparent 70%),
+    linear-gradient(transparent 98%, rgba(255,255,255, var(--grid-alpha)) 99%),
+    linear-gradient(90deg, transparent 98%, rgba(255,255,255, var(--grid-alpha)) 99%);
+  background-size:100% 100%, 40px 40px, 40px 40px;
+}
+
+/* Text slides */
+.text-cards{position:absolute;inset:0;display:grid;place-items:center;z-index:2}
+.text-box{max-width:min(1120px,90vw); text-align:center}
+.text-kicker{ text-transform:uppercase; letter-spacing:.22em; color:var(--muted); font-size:.8rem; margin-bottom:.5rem; }
+.text-title{ margin:0; font-weight:800; letter-spacing:-.02em; }
+.text-sub{ color:var(--muted); margin:.75rem auto 0; }
+.text-body{ color:var(--muted); margin:.85rem auto 0; max-width:70ch; }
+
+/* Verdict cards */
+.verdict-grid{
+  height:100%;display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:16px;align-content:center
+}
+.verdict-card{
+  background:linear-gradient(180deg, rgba(20,22,28,.78), rgba(20,22,28,.6));
+  border:1px solid rgba(255,255,255,.08); border-radius:16px;
+  padding:1.1rem 1.2rem; box-shadow:0 10px 30px rgba(0,0,0,.25);
+  transform:translateY(10px); opacity:0; transition:opacity .8s ease, transform .8s ease
+}
+.verdict-card.show{opacity:1;transform:none}
+
+/* Credits window (borderless, line-free) */
+.credits-viewport{
+  position:absolute; left:50%; transform:translateX(-50%);
+  width:min(900px,86vw);
+  overflow:hidden; /* becomes auto after roll completes via JS */
+  /* no background panel, border, or shadows */
+  background:transparent; border:none; border-radius:0; box-shadow:none; backdrop-filter:none;
+  z-index:1;
+}
+.credits-roll{ padding:1.2rem 1.4rem; }
+.credit{ padding:.35rem 0; }
+.credit:last-child{ border-bottom:none; }
+
+/* animated decorations: trigger when .revealed lands on the text box */
+.text-body .fx, .text-sub .fx, .text-title .fx { transition: all .6s cubic-bezier(.2,.7,.2,1); }
+
+/* underline that draws in */
+.fx-underline {
+  background: linear-gradient(currentColor, currentColor) 0 100% / 0 2px no-repeat;
+}
+.revealed .fx-underline {
+  background-size: 100% 2px;
+}
+
+:root{
+  /* slide text effects timing */
+  --fx-speed-mult: 1.35;           /* little slower overall */
+  --fx-dur-base: 720ms;            /* base duration */
+  --fx-dur: calc(var(--fx-dur-base) * var(--fx-speed-mult));
+  --fx-stagger: 90ms;              /* optional: used if you stagger tokens */
+}
+
+/* generic token timing (optional but handy if you stagger via --fx-delay) */
+.fx-token{
+  animation-duration: var(--fx-dur);
+  animation-fill-mode: forwards;
+  animation-timing-function: ease;
+  animation-delay: var(--fx-delay, 0ms);
+}
+
+/* FULL-HEIGHT, MULTI-LINE HIGHLIGHT + ANIMATION */
+.fx-highlight{
+  --hl-color: color-mix(in oklab, var(--accent) 55%, transparent);
+
+  background-image: linear-gradient(var(--hl-color), var(--hl-color));
+  background-repeat: no-repeat;
+  background-size: 0% 100%;       /* ← start collapsed horizontally */
+  background-position: 0 0;       /* top-left */
+  padding: .05em .15em;
+
+  /* make background apply per wrapped line */
+  box-decoration-break: clone;
+  -webkit-box-decoration-break: clone;
+
+  /* animate the wipe */
+  animation-name: fxHighlightFill;
+  animation-duration: var(--fx-dur);
+  animation-timing-function: ease;
+  animation-fill-mode: forwards;
+
+  /* gate the animation so it starts only when the slide reveals */
+  animation-play-state: paused;
+}
+
+/* when the slide is “on”, let animations run */
+.text-box.fx-on .fx-highlight,
+.text-box.fx-on .fx-token.fx-highlight{
+  animation-play-state: running;
+}
+
+@keyframes fxHighlightFill{
+  from{ background-size: 0% 100%; }
+  to  { background-size: 100% 100%; }
+}
+
+/* Respect reduced motion */
+@media (prefers-reduced-motion: reduce){
+  .fx-highlight{ animation: none; background-size: 100% 100%; }
+}
+
+
+/* subtle bold “pop” */
+.fx-bold { display:inline-block; transform: scale(.98); font-weight: 800; filter: saturate(1); }
+.revealed .fx-bold { transform: scale(1); filter: saturate(1.1); }
+
+/* rise-in from below */
+.fx-rise { display:inline-block; transform: translateY(.4em); opacity: .01; }
+.revealed .fx-rise { transform: none; opacity: 1; }
+
+/* glow effect */
+.fx-glow { text-shadow: 0 0 0 rgba(123,223,242,0); }
+.revealed .fx-glow { text-shadow: 0 0 12px rgba(123,223,242,.55); }
+
+/* color anim is handled by JS setting style.color on reveal; ensure it can animate */
+.fx-color { transition: color 600ms cubic-bezier(.2,.7,.2,1); }
