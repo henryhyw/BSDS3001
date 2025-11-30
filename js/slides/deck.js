@@ -1594,26 +1594,6 @@ const deck = {
       }],
     },
     {
-      id:'scene-method-corr', group:'group-4', nav:'From methods to answers',
-      figures:[{
-        type:'text',
-        figSel:'#method-corr-text',
-        props:{
-          kicker:'Connecting back to the research questions',
-          title:'Which method answers which question?',
-          subtitle:[
-            '• Descriptives & clusters → Where DC growth, electricity share, prices, CO₂, water use, and jobs concentrate.',
-            '• Correlation & PCA → Which variables move together and how many underlying dimensions drive the system.',
-            '• Panel FE & SEM → How much extra DC load is associated with higher prices, CO₂, water stress, or jobs after controls, and through which mediated paths.',
-            '• Spatial models → Who feels spillovers beyond hub states along power and water corridors.',
-            '• Scenarios → What 2030 looks like with and without stronger efficiency, renewables, and water safeguards.'
-          ].join('<br/><br/>'),
-          align:'left', halign:'center',
-          sizes:{ title:'sm', subtitle:'md', body:'xs' }
-        }
-      }],
-    },
-    {
       id:'scene-method-sdgs', group:'group-4', nav:'SDGs (methods)',
       figures:[{
         type:'text',
