@@ -517,35 +517,6 @@ const deck = {
 
     // Section 1: Overall growth
     {
-      id:'scene-global-table', group:'group-1', nav:'US share',
-      label:'US vs world share',
-      layout:{ textFrac:0.22, gapFrac:0.05 },
-      figures:[
-        {
-          type:'text',
-          figSel:'#global-table-text',
-          props:{
-            kicker:'Why focus on the US?',
-            title:'US hosts more sites than the next six countries combined',
-            subtitle:'**4,214** US sites = **37.8%** of global records; UK + Germany + China together hold **12.4%**.',
-            align:'center', halign:'center',
-            sizes:{ title:'xs', subtitle:'xs', body:'xs' }
-          }
-        },
-        {
-          type:'table',
-          figSel:'#global-table',
-          props:{
-            columns:[{key:'country',title:'Country/Region'},{key:'sites',title:'Sites'},{key:'share',title:'Share of world'}],
-            rows: globalTopCountries,
-            staggerMs: 140,
-            graphOpacity:1
-          }
-        }
-      ],
-      caption:'Source: DataCenterMap.com (global data center counts by country).'
-    },
-    {
       id:'scene-us-share-text', group:'group-1', nav:'US share text',
       caption:'Source: DataCenterMap.com (global and US counts).',
       figures:[{
