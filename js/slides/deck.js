@@ -862,21 +862,6 @@ const deck = {
       caption:'Source: Visual Capitalist, “Mapped: Data Center Electricity Consumption by State.”'
     },
     {
-      id:'scene-electricity-text', group:'group-2', nav:'Load callouts',
-      caption:'Source: Visual Capitalist (2024) “Mapped: Data Center Electricity Consumption by State.”',
-      figures:[{
-        type:'text',
-        figSel:'#electricity-text',
-        props:{
-          kicker:'Load concentration',
-          title:'DC electricity share is [rise]climbing[/rise] in key states',
-          subtitle:'Virginia **25.6%**; Nebraska/Iowa/Oregon/Wyoming ~**11%**; Nevada 8.7%; Utah 7.7%; Arizona 7.4%. These hubs feel rising load most quickly—and still need interconnection approvals.',
-          align:'center', halign:'center',
-          sizes:{ title:'sm', subtitle:'sm', body:'sm' }
-        }
-      }]
-    },
-    {
       id:'scene-electricity-corr', group:'group-2', nav:'Growth→Use',
       label:'Count vs power share',
       figures:[
@@ -989,22 +974,6 @@ const deck = {
         }
       ],
       caption:'Source: US EIA Annual Electric Power Industry Report (residential price, 2015–2024).'
-    },
-    {
-      id:'scene-price-pattern', group:'group-2', nav:'Post-2020',
-      label:'Post-2020 rise',
-      figures:[{
-        type:'text',
-        figSel:'#price-pattern-text',
-        props:{
-          kicker:'Pattern match',
-          title:'Post-2020 __DC build surge__ matches the __price climb__',
-          subtitle:'Establishments __30k → 55k__ (+83%) from 2020–2024; US residential price **13.8¢ → 17.1¢** (+24%). Same window, same upward push on grids.',
-          align:'center', halign:'center',
-          sizes:{ title:'sm', subtitle:'sm', body:'sm' }
-        }
-      }],
-      caption:'Sources: US Bureau of Labor Statistics (NAICS 518210 establishments) and US EIA residential price (2015–2024).'
     },
     {
       id:'scene-electricity-sdgs', group:'group-2', nav:'SDGs (power)',
@@ -1146,20 +1115,6 @@ const deck = {
       caption:'Sources: EIA generation mix (renewables share) and CO₂ intensity; project-modeled top DC states by site counts.'
     },
     {
-      id:'scene-co2-takeaway', group:'group-3', nav:'CO₂ takeaway',
-      figures:[{
-        type:'text',
-        figSel:'#co2-takeaway',
-        props:{
-          kicker:'Implication',
-          title:'CO₂ hinges on where DC load plugs in',
-          subtitle:'Trend doubles because DC electricity is still mostly fossil-backed; hub states with higher renewables (CA/WA/OR) deliver lower intensity, pointing to siting + procurement as the quickest lever.',
-          align:'center', halign:'center',
-          sizes:{ title:'sm', subtitle:'sm', body:'sm' }
-        }
-      }]
-    },
-    {
       id:'scene-co2-sdgs', group:'group-3', nav:'SDGs (CO₂)',
       figures:[{
         type:'text',
@@ -1198,20 +1153,6 @@ const deck = {
           kicker:'Section · Water and cooling',
           title:'From electricity demand to [glow]cooling water demand[/glow]',
           subtitle:'This section links data-center cooling water use to where it falls on already stressed or safer river basins.',
-          align:'center', halign:'center',
-          sizes:{ title:'sm', subtitle:'sm', body:'sm' }
-        }
-      }]
-    },
-    {
-      id:'scene-water-usage', group:'group-3', nav:'Water use',
-      figures:[{
-        type:'text',
-        figSel:'#water-usage-text',
-        props:{
-          kicker:'Cooling volumes',
-          title:'Hyperscale ~__550k gal/day__ (200M/yr)',
-          subtitle:'Wholesale/retail averages ~18k gal/day (6.6M/yr). 550k gal/day is enough for ~6,500 Americans’ daily household use (USGS).',
           align:'center', halign:'center',
           sizes:{ title:'sm', subtitle:'sm', body:'sm' }
         }
